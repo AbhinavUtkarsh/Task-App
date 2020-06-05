@@ -34,6 +34,9 @@ router.post("/tasks", async (req, res) => {
         res.status(400).send(e)
     }
 })
+
+
+
 router.patch("/tasks/:id", async (req, res) => {
     const updates = Object.keys(req.body)
     const isAllowed = ["completed", "description"]
@@ -44,7 +47,10 @@ router.patch("/tasks/:id", async (req, res) => {
         return res.status(400).send({ error: "Can't make this update" })
     }
     try {
-        const task = await Task.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
+        const task = await Task.findById(_id)
+        updates.forEach((update) => task[update] = req.body[update])
+        await task.save()
+        //const task = await Task.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true })
         if (!task) {
             res.status(404).send()
         }
